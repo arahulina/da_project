@@ -1,4 +1,4 @@
-# 🎈 Blank app template
+# Earthquakes from 1995 to 2023
 
 A simple Streamlit app template for you to modify!
 
