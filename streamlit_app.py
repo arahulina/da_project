@@ -51,7 +51,7 @@ st.map(df[['latitude', 'longitude']])
 
 #st.altair_chart(c, use_container_width=True)
 
-magnitude_counts = data['magnitude'].round().value_counts().sort_index()
+magnitude_counts = df['magnitude'].round().value_counts().sort_index()
 
 # Побудова кругової діаграми
 plt.figure(figsize=(8, 8))
