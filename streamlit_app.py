@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import altair as alt
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 
@@ -23,45 +23,52 @@ st.title("Моя карта на основі даних")
 # Відображення карти на основі даних про широту і довготу
 st.map(df[['latitude', 'longitude']])
 
-# Припустимо, що магнітуда міститься у стовпці 'magnitude'
-# Якщо назва інша, змініть 'magnitude' на відповідну
-#magnitudes = df[['magnitude']]
+import folium
+from streamlit_folium import st_folium
 
-# Побудова гістограми з Altair
-#hist = alt.Chart(magnitudes).mark_bar().encode(
-#    alt.X('magnitude:Q', bin=alt.Bin(maxbins=30), title='Магнітуда'),
-#    alt.Y('count()', title='Кількість землетрусів'),
- #   tooltip=['magnitude', 'count()']
-#).properties(
-#    title='Розподіл магнітуд землетрусів',
-#    width=600,
-#    height=400
-#).interactive()  # Додає можливість масштабування та взаємодії
+# Завантаження даних
+data = pd.read_csv('data/earthquake_1995-2023.csv')
 
-# Відображення графіка
-#hist.show()
+# Заголовок додатка
+st.title("Інтерактивна мапа землетрусів (1995-2023)")
 
-#chart_data = df, columns=["magnitude", "b", "c"])
+# Налаштування початкової мапи
+map_center = [0, 0]  # Центр карти для глобального огляду
+m = folium.Map(location=map_center, zoom_start=2)
 
-#c = (
-#   alt.Chart(chart_data)
-#   .mark_circle()
-#   .encode(x="a", y="b", size="c", color="c", tooltip=["a", "b", "c"])
-#)
+# Нормалізація магнітуд для маркерів
+magnitude_min = data['magnitude'].min()
+magnitude_max = data['magnitude'].max()
 
-#st.altair_chart(c, use_container_width=True)
+# Функція для вибору кольору залежно від магнітуди
+def get_color(magnitude):
+    if magnitude < 5:
+        return 'green'
+    elif 5 <= magnitude < 6:
+        return 'orange'
+    elif 6 <= magnitude < 7:
+        return 'red'
+    else:
+        return 'darkred'
 
-magnitude_counts = df['magnitude'].round().value_counts().sort_index()
+# Додавання маркерів на мапу
+for _, row in data.iterrows():
+    location = [row['latitude'], row['longitude']]
+    magnitude = row['magnitude']
+    
+    # Розмір маркера залежно від магнітуди
+    radius = (magnitude - magnitude_min) / (magnitude_max - magnitude_min) * 10 + 3
 
-# Побудова кругової діаграми
-plt.figure(figsize=(8, 8))
-plt.pie(
-    magnitude_counts,
-    labels=magnitude_counts.index,            # Підписи для кожного сектора
-    autopct='%1.1f%%',                        # Відсоткове значення в кожному секторі
-    startangle=140,                           # Початковий кут для розвороту діаграми
-    colors=plt.cm.viridis_r(magnitude_counts.index / magnitude_counts.max())  # Кольорова палітра
-)
+    # Додавання маркера з кольором та інформацією
+    folium.CircleMarker(
+        location=location,
+        radius=radius,
+        color=get_color(magnitude),
+        fill=True,
+        fill_color=get_color(magnitude),
+        fill_opacity=0.7,
+        tooltip=f"{row['location']}, Magnitude: {magnitude}"
+    ).add_to(m)
 
-plt.title("Distribution of Earthquake Magnitudes (1995-2023)")  # Заголовок
-plt.show()  # Показ діаграми
+# Відображення інтерактивної мапи у Streamlit
+st_folium(m, width=700, height=500)
