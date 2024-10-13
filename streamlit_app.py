@@ -17,8 +17,8 @@ df = pd.read_csv('data/earthquake_1995-2023.csv')
 # Відображення заголовку
 st.title("Моя карта на основі даних")
 # Відображення DataFrame
-#st.write("Набір даних:")
-#st.write(df)
+st.write("Набір даних:")
+st.write(df)
 
 # Відображення карти на основі даних про широту і довготу
 st.map(df[['latitude', 'longitude']])
@@ -72,3 +72,12 @@ for _, row in data.iterrows():
 
 # Відображення інтерактивної мапи у Streamlit
 st_folium(m, width=700, height=500)
+
+# Легенда для кольорів
+st.markdown("""
+### Легенда кольорів магнітуд:
+- <span style="color:green;">**Зелений**</span>: Магнітуда < 5  
+- <span style="color:orange;">**Помаранчевий**</span>: 5 ≤ Магнітуда < 6  
+- <span style="color:red;">**Червоний**</span>: 6 ≤ Магнітуда < 7  
+- <span style="color:darkred;">**Темно-червоний**</span>: Магнітуда ≥ 7  
+""", unsafe_allow_html=True)
