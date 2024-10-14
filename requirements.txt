@@ -4,3 +4,4 @@ numpy
 altair
 matplotlib
 folium
+streamlit_folium

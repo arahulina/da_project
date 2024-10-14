@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import altair as alt
 import matplotlib as plt
-
+import folium
+from streamlit_folium import st_folium
 
 
 st.title("Earthquakes")
@@ -23,8 +24,7 @@ st.write(df)
 # Відображення карти на основі даних про широту і довготу
 st.map(df[['latitude', 'longitude']])
 
-import folium
-from streamlit_folium import st_folium
+
 
 # Завантаження даних
 data = pd.read_csv('data/earthquake_1995-2023.csv')
