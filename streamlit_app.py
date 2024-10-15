@@ -81,3 +81,31 @@ st.markdown("""
 - <span style="color:red;">**Червоний**</span>: 6 ≤ Магнітуда < 7  
 - <span style="color:darkred;">**Темно-червоний**</span>: Магнітуда ≥ 7  
 """, unsafe_allow_html=True)
+
+
+data = df
+
+# Заголовок додатка
+st.title("Аналіз землетрусів (1995-2023)")
+
+# Виведення даних (перші кілька рядків для ознайомлення)
+st.subheader("Перегляд даних")
+st.dataframe(data.head())
+
+# Графік розподілу магнітуд
+st.subheader("Розподіл магнітуд землетрусів")
+
+# Побудова гістограми з Altair
+hist = alt.Chart(data).mark_bar().encode(
+    alt.X('magnitude:Q', bin=alt.Bin(maxbins=30), title='Магнітуда'),
+    alt.Y('count()', title='Кількість землетрусів'),
+    tooltip=['count()']
+).properties(
+    width=700,
+    height=400,
+    title='Гістограма розподілу магнітуд землетрусів'
+)
+
+# Виведення графіку в Streamlit
+st.altair_chart(hist, use_container_width=True)
+
