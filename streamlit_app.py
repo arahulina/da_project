@@ -13,24 +13,29 @@ st.write(
 )
 
 # Завантаження даних з файлу CSV 
-df = pd.read_csv('data/earthquake_1995-2023.csv')
+data = pd.read_csv('data/earthquake_1995-2023.csv')
 
 # Відображення заголовку
 st.title("Моя карта на основі даних")
 # Відображення DataFrame
 st.write("Набір даних:")
-st.write(df)
+st.write(data)
 
 # Відображення карти на основі даних про широту і довготу
-st.map(df[['latitude', 'longitude']])
+st.map(data[['latitude', 'longitude']])
 
-
-
-# Завантаження даних
-data = pd.read_csv('data/earthquake_1995-2023.csv')
 
 # Заголовок додатка
 st.title("Інтерактивна мапа землетрусів (1995-2023)")
+
+# Легенда для кольорів
+st.markdown("""
+### Легенда кольорів магнітуд:
+- <span style="color:green;">**Зелений**</span>: Магнітуда < 5  
+- <span style="color:orange;">**Помаранчевий**</span>: 5 ≤ Магнітуда < 6  
+- <span style="color:red;">**Червоний**</span>: 6 ≤ Магнітуда < 7  
+- <span style="color:darkred;">**Темно-червоний**</span>: Магнітуда ≥ 7  
+""", unsafe_allow_html=True)
 
 # Налаштування початкової мапи
 map_center = [0, 0]  # Центр карти для глобального огляду
@@ -73,24 +78,6 @@ for _, row in data.iterrows():
 # Відображення інтерактивної мапи у Streamlit
 st_folium(m, width=700, height=500)
 
-# Легенда для кольорів
-st.markdown("""
-### Легенда кольорів магнітуд:
-- <span style="color:green;">**Зелений**</span>: Магнітуда < 5  
-- <span style="color:orange;">**Помаранчевий**</span>: 5 ≤ Магнітуда < 6  
-- <span style="color:red;">**Червоний**</span>: 6 ≤ Магнітуда < 7  
-- <span style="color:darkred;">**Темно-червоний**</span>: Магнітуда ≥ 7  
-""", unsafe_allow_html=True)
-
-
-data = df
-
-# Заголовок додатка
-st.title("Аналіз землетрусів (1995-2023)")
-
-# Виведення даних (перші кілька рядків для ознайомлення)
-st.subheader("Перегляд даних")
-st.dataframe(data.head())
 
 # Графік розподілу магнітуд
 st.subheader("Розподіл магнітуд землетрусів")
