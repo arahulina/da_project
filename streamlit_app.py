@@ -115,10 +115,6 @@ st.altair_chart(hist, use_container_width=True)
 # Заголовок додатка
 st.title("Аналіз глибини землетрусів (1995-2023)")
 
-# Виведення даних для ознайомлення
-st.subheader("Перші кілька рядків даних")
-st.dataframe(data.head())
-
 # Побудова boxplot для глибини землетрусів
 st.subheader("Розподіл глибини землетрусів")
 
