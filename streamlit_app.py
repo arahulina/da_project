@@ -109,3 +109,28 @@ hist = alt.Chart(data).mark_bar().encode(
 )
 # Виведення графіку в Streamlit
 st.altair_chart(hist, use_container_width=True)
+
+
+
+# Заголовок додатка
+st.title("Аналіз глибини землетрусів (1995-2023)")
+
+# Виведення даних для ознайомлення
+st.subheader("Перші кілька рядків даних")
+st.dataframe(data.head())
+
+# Побудова boxplot для глибини землетрусів
+st.subheader("Розподіл глибини землетрусів")
+
+# Створення графіка boxplot з Altair
+boxplot = alt.Chart(data).mark_boxplot().encode(
+    y=alt.Y('depth:Q', title='Глибина (км)'),
+    tooltip=['depth']
+).properties(
+    width=600,
+    height=400,
+    title='Boxplot глибини землетрусів'
+)
+
+# Виведення графіка у Streamlit
+st.altair_chart(boxplot, use_container_width=True)
