@@ -156,11 +156,18 @@ earthquakes_per_year = (
 )
 
 # Виведення таблиці з даними
-st.subheader("Таблиця: Кількість землетрусів по роках")
-st.dataframe(earthquakes_per_year)
+# st.subheader("Таблиця: Кількість землетрусів по роках")
+# st.dataframe(earthquakes_per_year)
+
+# Транспонування таблиці для вертикального вигляду
+vertical_table = earthquakes_per_year.T  # Транспонована таблиця
+
+# Виведення транспонованої таблиці
+st.subheader("Кількість землетрусів по роках")
+st.dataframe(vertical_table)
 
 # Побудова лінійного графіка з Altair
-st.subheader("Графік: Кількість землетрусів по роках")
+# st.subheader("Графік: Кількість землетрусів по роках")
 line_chart = alt.Chart(earthquakes_per_year).mark_line(point=True).encode(
     x=alt.X('year:O', title='Рік'),
     y=alt.Y('count:Q', title='Кількість землетрусів'),
@@ -168,7 +175,7 @@ line_chart = alt.Chart(earthquakes_per_year).mark_line(point=True).encode(
 ).properties(
     width=700,
     height=400,
-    title='Кількість землетрусів по роках'
+    #title='Кількість землетрусів по роках'
 )
 
 # Виведення графіка у Streamlit
