@@ -81,18 +81,31 @@ st_folium(m, width=700, height=500)
 
 # Графік розподілу магнітуд
 st.subheader("Розподіл магнітуд землетрусів")
-
 # Побудова гістограми з Altair
 hist = alt.Chart(data).mark_bar().encode(
     alt.X('magnitude:Q', bin=alt.Bin(maxbins=30), title='Магнітуда'),
     alt.Y('count()', title='Кількість землетрусів'),
     tooltip=['count()']
 ).properties(
-    width=700,
+    width=600,
     height=400,
     title='Гістограма розподілу магнітуд землетрусів'
 )
-
 # Виведення графіку в Streamlit
 st.altair_chart(hist, use_container_width=True)
 
+
+# Графік розподілу магнітуд
+st.subheader("Розподіл глибин землетрусів")
+# Побудова гістограми з Altair
+hist = alt.Chart(data).mark_bar().encode(
+    alt.X('depth:Q', bin=alt.Bin(maxbins=30), title='Глибина землетрусу'),
+    alt.Y('count()', title='Кількість землетрусів'),
+    tooltip=['count()']
+).properties(
+    width=600,
+    height=400,
+    title='Гістограма розподілу магнітуд землетрусів'
+)
+# Виведення графіку в Streamlit
+st.altair_chart(hist, use_container_width=True)
