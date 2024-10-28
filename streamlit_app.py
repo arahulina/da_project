@@ -130,3 +130,35 @@ boxplot = alt.Chart(data).mark_boxplot().encode(
 
 # Виведення графіка у Streamlit
 st.altair_chart(boxplot, use_container_width=True)
+
+
+
+# Перетворення стовпця часу на формат datetime
+data['time'] = pd.to_datetime(data['date_time'])
+
+# Виділення року із дати
+data['year'] = data['time'].dt.year
+
+# Заголовок додатка
+st.title("Кількість землетрусів по роках (1995-2023)")
+
+# Виведення даних для ознайомлення
+st.subheader("Перші кілька рядків даних")
+st.dataframe(data.head())
+
+# Групування даних по роках
+earthquakes_per_year = data.groupby('year').size().reset_index(name='count')
+
+# Побудова лінійного графіка з Altair
+line_chart = alt.Chart(earthquakes_per_year).mark_line(point=True).encode(
+    x=alt.X('year:O', title='Рік'),
+    y=alt.Y('count:Q', title='Кількість землетрусів'),
+    tooltip=['year', 'count']
+).properties(
+    width=700,
+    height=400,
+    title='Кількість землетрусів по роках'
+)
+
+# Виведення графіка у Streamlit
+st.altair_chart(line_chart, use_container_width=True)
