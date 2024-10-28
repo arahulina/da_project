@@ -150,8 +150,10 @@ data['year'] = data['time'].dt.year
 # Заголовок додатка
 st.title("Кількість землетрусів по роках (1995-2023)")
 
-# Групування даних по роках
-earthquakes_per_year = data.groupby('year').size().reset_index(name='count')
+# Групування даних по роках і сортування за кількістю землетрусів
+earthquakes_per_year = (
+    data.groupby('year').size().reset_index(name='count').sort_values(by='count', ascending=False)
+)
 
 # Виведення таблиці з даними
 st.subheader("Таблиця: Кількість землетрусів по роках")
