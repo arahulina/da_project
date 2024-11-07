@@ -42,6 +42,9 @@ yearly_counts = data['year'].value_counts().sort_index()
 yearly_counts_df = yearly_counts.reset_index()
 yearly_counts_df.columns = ['Рік', 'Кількість землетрусів']
 
+# Транспонування таблиці для горизонтального відображення
+horizontal_table = yearly_counts_df.set_index('Рік').T
+
 # Заголовок додатку
 st.title("Тренд кількості землетрусів за роками")
 
@@ -53,9 +56,9 @@ ax.set_xlabel('Рік')
 ax.set_ylabel('Кількість землетрусів')
 st.pyplot(fig)
 
-# Виведення таблиці з кількістю землетрусів за роками
+# Виведення горизонтальної таблиці з кількістю землетрусів за роками
 st.write("### Кількість землетрусів за кожен рік")
-st.table(yearly_counts_df)
+st.table(horizontal_table)
 
 # Заголовок додатку
 st.title("Розсіювання: Магнітуда проти глибини землетрусів")
