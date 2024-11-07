@@ -74,6 +74,36 @@ plt.grid(True)
 # Відображення графіка у Streamlit
 st.pyplot(plt)
 
+# Перевірка наявності необхідних колонок
+if 'tsunami' not in data.columns or 'magnitude' not in data.columns or 'depth' not in data.columns:
+    st.error("Дані не містять необхідних колонок для аналізу (tsunami, magnitude, depth).")
+else:
+    # Видалення пропущених значень у важливих колонках
+    data = data.dropna(subset=['tsunami', 'magnitude', 'depth'])
+
+    # Заголовок додатку
+    st.title("Залежність виникнення цунамі від глибини та магнітуди землетрусу")
+
+    # Створення графіка розсіювання
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Відображення землетрусів без цунамі
+    no_tsunami = data[data['tsunami'] == 0]
+    ax.scatter(no_tsunami['depth'], no_tsunami['magnitude'], color='blue', alpha=0.5, label='Без цунамі')
+    
+    # Відображення землетрусів з цунамі
+    tsunami = data[data['tsunami'] == 1]
+    ax.scatter(tsunami['depth'], tsunami['magnitude'], color='red', alpha=0.7, label='З цунамі')
+    
+    # Налаштування графіка
+    ax.set_title("Залежність виникнення цунамі від глибини та магнітуди")
+    ax.set_xlabel("Глибина (км)")
+    ax.set_ylabel("Магнітуда")
+    ax.legend()
+    
+    # Відображення графіка у Streamlit
+    st.pyplot(fig)
+
 
 # Перетворення колонки з датами на формат datetime та створення колонки року
 data['date_time'] = pd.to_datetime(data['date_time'], errors='coerce')
