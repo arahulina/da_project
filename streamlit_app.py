@@ -1,182 +1,167 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import altair as alt
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import st_folium
 
-
-st.title("Earthquakes")
-st.write(
-    "Let's start!"
-)
-
-# Завантаження даних з файлу CSV 
+# Завантаження даних
 data = pd.read_csv('data/earthquake_1995-2023.csv')
 
-# Відображення заголовку
-st.title("Моя карта на основі даних")
-# Відображення DataFrame
-st.write("Набір даних:")
-st.write(data)
+# Перетворення колонки з датами на формат datetime
+data['date_time'] = pd.to_datetime(data['date_time'], errors='coerce')
 
-# Відображення карти на основі даних про широту і довготу
-st.map(data[['latitude', 'longitude']])
+# Додавання колонки для року
+data['year'] = data['date_time'].dt.year
 
+# Заголовок додатку
+st.title("Гістограма розподілу магнітуд землетрусів")
 
-# Заголовок додатка
-st.title("Інтерактивна мапа землетрусів (1995-2023)")
+# Вибір року
+years = sorted(data['year'].dropna().unique())
+selected_year = st.selectbox("Оберіть рік:", years)
 
-# Легенда для кольорів
-st.markdown("""
-### Легенда кольорів магнітуд:
-- <span style="color:green;">**Зелений**</span>: Магнітуда < 5  
-- <span style="color:orange;">**Помаранчевий**</span>: 5 ≤ Магнітуда < 6  
-- <span style="color:red;">**Червоний**</span>: 6 ≤ Магнітуда < 7  
-- <span style="color:darkred;">**Темно-червоний**</span>: Магнітуда ≥ 7  
-""", unsafe_allow_html=True)
+# Фільтрація даних за вибраним роком
+filtered_data = data[data['year'] == selected_year]
 
-# Налаштування початкової мапи
-map_center = [0, 0]  # Центр карти для глобального огляду
-m = folium.Map(location=map_center, zoom_start=2)
+# Побудова гістограми
+plt.figure(figsize=(10, 6))
+plt.hist(filtered_data['magnitude'], bins=20, color='skyblue', edgecolor='black')
+plt.title(f"Розподіл магнітуд землетрусів у {selected_year} році")
+plt.xlabel("Магнітуда")
+plt.ylabel("Кількість")
 
-# Нормалізація магнітуд для маркерів
-magnitude_min = data['magnitude'].min()
-magnitude_max = data['magnitude'].max()
+# Відображення гістограми у Streamlit
+st.pyplot(plt)
 
-# Функція для вибору кольору залежно від магнітуди
-def get_color(magnitude):
-    if magnitude < 5:
-        return 'green'
-    elif 5 <= magnitude < 6:
-        return 'orange'
-    elif 6 <= magnitude < 7:
-        return 'red'
-    else:
-        return 'darkred'
+# Заголовок додатку
+st.title("Тренд кількості землетрусів за роками")
 
-# Додавання маркерів на мапу
-for _, row in data.iterrows():
-    location = [row['latitude'], row['longitude']]
-    magnitude = row['magnitude']
-    
-    # Розмір маркера залежно від магнітуди
-    radius = (magnitude - magnitude_min) / (magnitude_max - magnitude_min) * 10 + 3
+# Підрахунок кількості землетрусів за кожен рік
+yearly_counts = data['year'].value_counts().sort_index()
 
-    # Додавання маркера з кольором та інформацією
-    folium.CircleMarker(
-        location=location,
-        radius=radius,
-        color=get_color(magnitude),
-        fill=True,
-        fill_color=get_color(magnitude),
-        fill_opacity=0.7,
-        tooltip=f"{row['location']}, Magnitude: {magnitude}"
-    ).add_to(m)
+# Побудова тренд-лінії
+plt.figure(figsize=(10, 6))
+plt.plot(yearly_counts.index, yearly_counts.values, marker='o', linestyle='-', color='skyblue')
+plt.title("Кількість землетрусів за роками")
+plt.xlabel("Рік")
+plt.ylabel("Кількість землетрусів")
 
-# Відображення інтерактивної мапи у Streamlit
-st_folium(m, width=700, height=500)
+# Відображення тренд-лінії у Streamlit
+st.pyplot(plt)
+
+# Заголовок додатку
+st.title("Розсіювання: Магнітуда проти глибини землетрусів")
+
+# Побудова графіка розсіювання
+plt.figure(figsize=(10, 6))
+plt.scatter(data['depth'], data['magnitude'], alpha=0.5, c='skyblue', edgecolor='k')
+plt.title("Залежність магнітуди від глибини землетрусів")
+plt.xlabel("Глибина (км)")
+plt.ylabel("Магнітуда")
+plt.grid(True)
+
+# Відображення графіка у Streamlit
+st.pyplot(plt)
 
 
-# Графік розподілу магнітуд
-st.subheader("Розподіл магнітуд землетрусів")
-# Побудова гістограми з Altair
-hist = alt.Chart(data).mark_bar().encode(
-    alt.X('magnitude:Q', bin=alt.Bin(maxbins=30), title='Магнітуда'),
-    alt.Y('count()', title='Кількість землетрусів'),
-    tooltip=['count()']
-).properties(
-    width=600,
-    height=400,
-    title='Гістограма розподілу магнітуд землетрусів'
-)
-# Виведення графіку в Streamlit
-st.altair_chart(hist, use_container_width=True)
+# Перетворення колонки з датами на формат datetime та створення колонки року
+data['date_time'] = pd.to_datetime(data['date_time'], errors='coerce')
+data['year'] = data['date_time'].dt.year
+
+# Заголовок додатку
+st.title("Інтерактивна карта розподілу землетрусів")
+
+# Вибір континенту з можливістю вибору всіх континентів
+continents = sorted(data['continent'].dropna().unique())
+continents.insert(0, "Всі континенти")
+selected_continent = st.selectbox("Оберіть континент:", continents, key="continent_select")
+
+# Вибір року з можливістю вибору всіх років
+years = sorted(data['year'].dropna().unique())
+years.insert(0, "Всі роки")
+selected_year = st.selectbox("Оберіть рік:", years, key="year_select")
+
+# Фільтрація даних за вибраними континентом і роком
+if selected_continent == "Всі континенти":
+    filtered_data = data
+else:
+    filtered_data = data[data['continent'] == selected_continent]
+
+if selected_year != "Всі роки":
+    filtered_data = filtered_data[filtered_data['year'] == selected_year]
+
+# Перевірка наявності даних після фільтрації
+if filtered_data.empty:
+    st.warning("Немає даних для вибраного континенту та року.")
+else:
+    # Функція для визначення кольору залежно від магнітуди
+    def magnitude_color(magnitude):
+        if magnitude < 4.0:
+            return 'green'
+        elif 4.0 <= magnitude < 5.0:
+            return 'orange'
+        elif 5.0 <= magnitude < 6.0:
+            return 'red'
+        else:
+            return 'darkred'
+
+    # Створення базової карти з фокусом на середні координати
+    m = folium.Map(location=[filtered_data['latitude'].mean(), filtered_data['longitude'].mean()], zoom_start=3)
+
+    # Додавання точок землетрусів на карту
+    for _, row in filtered_data.iterrows():
+        folium.CircleMarker(
+            location=[row['latitude'], row['longitude']],
+            radius=5,
+            popup=f"Магнітуда: {row['magnitude']}\nГлибина: {row['depth']} км",
+            color=magnitude_color(row['magnitude']),
+            fill=True,
+            fill_opacity=0.6
+        ).add_to(m)
+
+    # Додавання легенди на карту
+    legend_html = """
+         <div style="position: fixed;
+                     bottom: 50px; left: 50px; width: 150px; height: 150px;
+                     background-color: white; border:2px solid grey; z-index:9999; font-size:14px;
+                     ">
+         &nbsp; <b>Легенда:</b> <br>
+         &nbsp; <i style="color:green;">●</i> Магнітуда < 4.0 <br>
+         &nbsp; <i style="color:orange;">●</i> 4.0 ≤ Магнітуда < 5.0 <br>
+         &nbsp; <i style="color:red;">●</i> 5.0 ≤ Магнітуда < 6.0 <br>
+         &nbsp; <i style="color:darkred;">●</i> Магнітуда ≥ 6.0
+         </div>
+         """
+    m.get_root().html.add_child(folium.Element(legend_html))
+
+    # Відображення карти у Streamlit
+    st.write(f"Континент: {selected_continent}, Рік: {selected_year}")
+    st_folium(m, width=700, height=500)
 
 
-# Графік розподілу магнітуд
-st.subheader("Розподіл глибин землетрусів")
-# Побудова гістограми з Altair
-hist = alt.Chart(data).mark_bar().encode(
-    alt.X('depth:Q', bin=alt.Bin(maxbins=30), title='Глибина землетрусу'),
-    alt.Y('count()', title='Кількість землетрусів'),
-    tooltip=['count()']
-).properties(
-    width=600,
-    height=400,
-    title='Гістограма розподілу магнітуд землетрусів'
-)
-# Виведення графіку в Streamlit
-st.altair_chart(hist, use_container_width=True)
+# Заголовок додатку
+st.title("Порівняння кількості землетрусів за країнами або континентами")
 
+# Вибір групування: за країнами або континентами
+group_by_option = st.radio("Групувати за:", ['Країною', 'Континентом'])
 
+# Групування та підрахунок
+if group_by_option == 'Країною':
+    data_grouped = data['country'].value_counts().dropna().head(10)  # Топ-10 країн
+    ylabel = "Кількість землетрусів"
+    title = "Кількість землетрусів за країнами (Топ-10)"
+else:
+    data_grouped = data['continent'].value_counts().dropna()
+    ylabel = "Кількість землетрусів"
+    title = "Кількість землетрусів за континентами"
 
-# Заголовок додатка
-st.title("Аналіз глибини землетрусів (1995-2023)")
+# Побудова стовпчикової діаграми
+plt.figure(figsize=(10, 6))
+data_grouped.plot(kind='bar', color='skyblue', edgecolor='black')
+plt.xlabel(group_by_option)
+plt.ylabel(ylabel)
+plt.title(title)
+plt.xticks(rotation=45)
 
-# Побудова boxplot для глибини землетрусів
-st.subheader("Розподіл глибини землетрусів")
-
-# Створення графіка boxplot з Altair
-boxplot = alt.Chart(data).mark_boxplot().encode(
-    y=alt.Y('depth:Q', title='Глибина (км)'),
-    tooltip=['depth']
-).properties(
-    width=600,
-    height=400,
-    title='Boxplot глибини землетрусів'
-)
-
-# Виведення графіка у Streamlit
-st.altair_chart(boxplot, use_container_width=True)
-
-
-
-# Перетворення стовпця часу на формат datetime
-data['time'] = pd.to_datetime(data['date_time'])
-
-# Виділення року із дати
-data['year'] = data['time'].dt.year
-
-
-
-# Перетворення стовпця часу на формат datetime
-data['time'] = pd.to_datetime(data['date_time'])
-
-# Виділення року із дати
-data['year'] = data['time'].dt.year
-
-# Заголовок додатка
-st.title("Кількість землетрусів по роках (1995-2023)")
-
-# Групування даних по роках і сортування за кількістю землетрусів
-earthquakes_per_year = (
-    data.groupby('year').size().reset_index(name='count').sort_values(by='count', ascending=False)
-)
-
-# Виведення таблиці з даними
-# st.subheader("Таблиця: Кількість землетрусів по роках")
-# st.dataframe(earthquakes_per_year)
-
-# Транспонування таблиці для вертикального вигляду
-vertical_table = earthquakes_per_year.T  # Транспонована таблиця
-
-# Виведення транспонованої таблиці
-st.subheader("Кількість землетрусів по роках")
-st.dataframe(vertical_table)
-
-# Побудова лінійного графіка з Altair
-# st.subheader("Графік: Кількість землетрусів по роках")
-line_chart = alt.Chart(earthquakes_per_year).mark_line(point=True).encode(
-    x=alt.X('year:O', title='Рік'),
-    y=alt.Y('count:Q', title='Кількість землетрусів'),
-    tooltip=['year', 'count']
-).properties(
-    width=700,
-    height=400,
-    #title='Кількість землетрусів по роках'
-)
-
-# Виведення графіка у Streamlit
-st.altair_chart(line_chart, use_container_width=True)
+# Відображення графіка у Streamlit
+st.pyplot(plt)
