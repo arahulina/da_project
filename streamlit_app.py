@@ -33,21 +33,29 @@ plt.ylabel("Кількість")
 # Відображення гістограми у Streamlit
 st.pyplot(plt)
 
+# Перетворення колонки з датами на формат datetime та створення колонки року
+data['date_time'] = pd.to_datetime(data['date_time'], errors='coerce')
+data['year'] = data['date_time'].dt.year
+
+# Підрахунок кількості землетрусів за роками
+yearly_counts = data['year'].value_counts().sort_index()
+yearly_counts_df = yearly_counts.reset_index()
+yearly_counts_df.columns = ['Рік', 'Кількість землетрусів']
+
 # Заголовок додатку
 st.title("Тренд кількості землетрусів за роками")
 
-# Підрахунок кількості землетрусів за кожен рік
-yearly_counts = data['year'].value_counts().sort_index()
+# Побудова трендової лінії
+fig, ax = plt.subplots()
+ax.plot(yearly_counts.index, yearly_counts.values, marker='o', color='b')
+ax.set_title('Кількість землетрусів за роками')
+ax.set_xlabel('Рік')
+ax.set_ylabel('Кількість землетрусів')
+st.pyplot(fig)
 
-# Побудова тренд-лінії
-plt.figure(figsize=(10, 6))
-plt.plot(yearly_counts.index, yearly_counts.values, marker='o', linestyle='-', color='skyblue')
-plt.title("Кількість землетрусів за роками")
-plt.xlabel("Рік")
-plt.ylabel("Кількість землетрусів")
-
-# Відображення тренд-лінії у Streamlit
-st.pyplot(plt)
+# Виведення таблиці з кількістю землетрусів за роками
+st.write("### Кількість землетрусів за кожен рік")
+st.table(yearly_counts_df)
 
 # Заголовок додатку
 st.title("Розсіювання: Магнітуда проти глибини землетрусів")
