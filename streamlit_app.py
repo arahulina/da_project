@@ -179,7 +179,6 @@ else:
     st.write(f"Континент: {selected_continent}, Рік: {selected_year}")
     st_folium(m, width=700, height=500)
 
-
 # Заголовок додатку
 st.title("Порівняння кількості землетрусів за країнами або континентами")
 
