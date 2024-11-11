@@ -5,7 +5,12 @@ import folium
 from streamlit_folium import st_folium
 
 # Завантаження даних
-data = pd.read_csv('data/earthquake_1995-2023.csv')
+#data = pd.read_csv('data/earthquake_1995-2023.csv')
+@st.cache_data
+def load_data():
+    return pd.read_csv('data/earthquake_1995-2023.csv')
+
+data = load_data()
 
 # Перетворення колонки з датами на формат datetime
 data['date_time'] = pd.to_datetime(data['date_time'], errors='coerce')
