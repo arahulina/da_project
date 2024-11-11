@@ -149,7 +149,7 @@ else:
     # Створення базової карти з фокусом на середні координати
     m = folium.Map(location=[filtered_data['latitude'].mean(), filtered_data['longitude'].mean()], zoom_start=3)
 
-    st.emprty()
+    #st.emprty()
 
     # Додавання точок землетрусів на карту
     for _, row in filtered_data.iterrows():
