@@ -2,7 +2,7 @@
 
 A simple Streamlit app template for you to modify!
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://my-app-5nq20n29mrw.streamlit.app/)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://daproject-earthquakes.streamlit.app/)
 
 Project: Earthquake Data Analysis and Visualization
 This project focuses on analyzing earthquake data and visualizing different aspects of their characteristics, such as magnitude, depth, frequency, geographic location, and the relationship with tsunami occurrences. Streamlit is used to build an interactive interface, and pandas, matplotlib, and folium libraries are used for data processing and visualization.
