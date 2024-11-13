@@ -1,56 +1,69 @@
-# Earthquakes from 1995 to 2023
 
-A simple Streamlit app template for you to modify!
+# Earthquake Data Analysis and Visualization (1995 - 2023)
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://daproject-earthquakes.streamlit.app/)
+Explore and visualize earthquake data from 1995 to 2023 through this interactive Streamlit app. This application allows users to analyze global earthquake characteristics such as magnitude, depth, frequency, and geographic distribution. It also visualizes potential relationships between earthquake attributes and tsunami occurrences.
 
-Project: Earthquake Data Analysis and Visualization
-This project focuses on analyzing earthquake data and visualizing different aspects of their characteristics, such as magnitude, depth, frequency, geographic location, and the relationship with tsunami occurrences. Streamlit is used to build an interactive interface, and pandas, matplotlib, and folium libraries are used for data processing and visualization.
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://my-app-5nq20n29mrw.streamlit.app/)
 
-Files
-earthquake_1995-2023.csv: CSV file containing data on earthquakes from 1995 to 2023, including magnitude, depth, date, coordinates, continent, and information about tsunamis.
-streamlit_app.py: Main application script that performs data processing and visualization in Streamlit.
+## Project Overview
+This project provides an interactive platform for exploring earthquake data across continents and time. It includes various visualizations to help users understand trends and identify key patterns, such as depth and magnitude’s influence on tsunami probability. This tool is built using Streamlit, pandas, matplotlib, and folium.
 
-Key Functionality
-1. Interactive Earthquake Distribution Map
-Description: Allows the user to select a continent and year to view earthquakes in a specific region and time period.
-Filters: Continent, year (with options to select "All Continents" and "All Years").
-Visualization Features: Color-coded by earthquake magnitude with a legend.
-Library: folium is used for the interactive map.
-2. Earthquake Trend by Year
-Description: A trend line chart showing the change in the number of earthquakes over the years, helping to analyze yearly trends.
-Table: Displays the number of earthquakes per year in a horizontal format.
-Library: matplotlib for the trend line, pandas for data preparation.
-3. Tsunami Occurrence Based on Depth and Magnitude
-Description: A scatter plot showing the relationship between earthquake depth, magnitude, and the probability of triggering a tsunami.
-Color Coding: Earthquakes that caused a tsunami are shown in red, while others are shown in blue.
-Library: matplotlib for the scatter plot.
+### Files
+- **`earthquake_1995-2023.csv`**: A CSV file with earthquake data, containing columns for magnitude, depth, date, geographic coordinates, continent, and tsunami occurrence.
+- **`streamlit_app.py`**: The main Streamlit app script that handles data processing, filtering, and visualization.
 
-How to Run the Application
-1. Install Dependencies:
-$ pip install -r requirements.txt
+### Key Features
+#### 1. Interactive Earthquake Distribution Map
+   - **Purpose**: Allows users to view earthquakes in specific continents and years, highlighting regional earthquake activity and distribution.
+   - **Filters**: Continent and year (with options for “All Continents” and “All Years”).
+   - **Visualization**: Earthquakes are color-coded by magnitude, with an intuitive legend for reference.
+   - **Library**: Built with `folium` for interactive map functionality.
 
-2. Run the Application in Streamlit:
-$ streamlit run streamlit_app.py
+#### 2. Earthquake Trend by Year
+   - **Purpose**: Visualizes earthquake trends over time, helping users analyze patterns in earthquake frequency from year to year.
+   - **Table**: Shows earthquake counts per year in a clean horizontal format.
+   - **Library**: Uses `matplotlib` for the trend line plot and `pandas` for data handling.
 
-3. Open Your Browser and go to the link displayed in the console (typically http://localhost:8501).
+#### 3. Tsunami Occurrence by Depth and Magnitude
+   - **Purpose**: Examines how earthquake depth and magnitude relate to tsunami events.
+   - **Visualization**: A scatter plot where earthquakes associated with tsunamis are marked in red, and others in blue.
+   - **Library**: Created with `matplotlib`.
 
-Code Structure
-Data Loading and Processing: The CSV file is loaded using pandas. The app processes the dates and adds a column with the year for convenient filtering.
-Filtering: All filters are applied directly in Streamlit, providing an intuitive interface.
-Visualization:
-Map visualization (folium): Used for the interactive display of earthquake distribution.
-Graphs (matplotlib): Used for trend lines and scatter plots.
+## How to Run the Application
+To run the Streamlit app locally, follow these steps:
 
-Visualization Examples
-Earthquake Map: Shows earthquake distribution by selected continent and year.
-Trend Line: Displays the number of earthquakes over the years and a horizontal table of earthquake counts by year.
-Scatter Plot (Tsunami): Visualizes the relationship between magnitude, depth, and tsunami occurrence probability.
+1. **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-Future Enhancements
-Add more filters, such as magnitude or depth.
-Implement tsunami probability forecasting based on depth and magnitude.
-Enable exporting of graphs and tables.
+2. **Start the Application**:
+    ```bash
+    streamlit run streamlit_app.py
+    ```
 
-Conclusions
-This application provides a tool for exploring earthquake data, helping to gain deeper insights into their characteristics and the factors contributing to tsunami occurrences.
+3. **Access the App**: Open the displayed link in your console (usually [http://localhost:8501](http://localhost:8501)) to interact with the app in your browser.
+
+## Code Structure
+- **Data Loading and Processing**: Earthquake data is loaded from the CSV file with `pandas`, and dates are parsed to add a ‘year’ column for easy filtering.
+- **Filtering**: Filters for continent and year are applied within Streamlit, offering a straightforward, user-friendly interface.
+- **Visualizations**:
+   - **Map**: An interactive map with `folium` for viewing earthquake locations by region and year.
+   - **Charts**: Trend lines and scatter plots with `matplotlib` to analyze trends and tsunami relationships.
+
+## Visualization Examples
+The application includes the following visualization tools:
+
+1. **Earthquake Distribution Map**: Shows earthquakes by continent and year, with color-coded markers based on magnitude.
+2. **Trend Line (Earthquake Count)**: Displays the number of earthquakes over the years along with a table of yearly earthquake counts.
+3. **Scatter Plot (Tsunami Probability)**: Illustrates the correlation between earthquake depth, magnitude, and tsunami likelihood.
+
+## Future Enhancements
+In future versions, we aim to add:
+- **Additional Filters**: Filtering options based on magnitude, depth, and specific regions.
+- **Tsunami Probability Forecasting**: Forecasting models based on depth and magnitude to predict tsunami potential.
+- **Export Functionality**: Options to export graphs and tables as image or CSV files for offline analysis.
+
+## Conclusion
+This Earthquake Data Analysis app provides a powerful tool for visualizing and exploring global earthquake data, fostering insights into their distribution, yearly trends, and factors influencing tsunami occurrences. We hope this platform offers valuable perspectives for both educational and research purposes in seismology and disaster preparedness.
+
