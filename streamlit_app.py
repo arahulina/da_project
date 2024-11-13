@@ -83,21 +83,34 @@ st.title(t["title_histogram"])
 
 
 # Заголовок додатку
-st.title("Гістограма розподілу магнітуд землетрусів")
+#st.title("Гістограма розподілу магнітуд землетрусів")
 
 # Вибір року
 years = sorted(data['year'].dropna().unique())
-selected_year = st.selectbox("Оберіть рік:", years)
+selected_year = st.selectbox(t["year_selection"], years)
+
+# Вибір року
+#years = sorted(data['year'].dropna().unique())
+#selected_year = st.selectbox("Оберіть рік:", years)
 
 # Фільтрація даних за вибраним роком
 filtered_data = data[data['year'] == selected_year]
 
 # Побудова гістограми
+#plt.figure(figsize=(10, 6))
+#plt.hist(filtered_data['magnitude'], bins=20, color='skyblue', edgecolor='black')
+#plt.title(f"Розподіл магнітуд землетрусів у {selected_year} році")
+#plt.xlabel("Магнітуда")
+#plt.ylabel("Кількість")
+
+# Побудова гістограми
 plt.figure(figsize=(10, 6))
 plt.hist(filtered_data['magnitude'], bins=20, color='skyblue', edgecolor='black')
-plt.title(f"Розподіл магнітуд землетрусів у {selected_year} році")
-plt.xlabel("Магнітуда")
-plt.ylabel("Кількість")
+plt.title(f"{t['title_histogram']} ({selected_year})")
+plt.xlabel(t["xlabel_magnitude"])
+plt.ylabel(t["ylabel_count"])
+
+
 
 # Відображення гістограми у Streamlit
 st.pyplot(plt)
