@@ -3,7 +3,7 @@
 
 Explore and visualize earthquake data from 1995 to 2023 through this interactive Streamlit app. This application allows users to analyze global earthquake characteristics such as magnitude, depth, frequency, and geographic distribution. It also visualizes potential relationships between earthquake attributes and tsunami occurrences.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://my-app-5nq20n29mrw.streamlit.app/)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://daproject-earthquakes.streamlit.app/)
 
 ## Project Overview
 This project provides an interactive platform for exploring earthquake data across continents and time. It includes various visualizations to help users understand trends and identify key patterns, such as depth and magnitude’s influence on tsunami probability. This tool is built using Streamlit, pandas, matplotlib, and folium.
