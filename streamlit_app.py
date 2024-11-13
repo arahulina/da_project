@@ -9,9 +9,78 @@ data = pd.read_csv('data/earthquake_1995-2023.csv')
 
 # Перетворення колонки з датами на формат datetime
 data['date_time'] = pd.to_datetime(data['date_time'], errors='coerce')
-
 # Додавання колонки для року
 data['year'] = data['date_time'].dt.year
+
+
+# Вибір мови
+language = st.sidebar.selectbox("Select Language / Виберіть мову:", ["English", "Українська"])
+
+# Тексти інтерфейсу для двох мов
+text = {
+    "English": {
+        "title_histogram": "Histogram of Earthquake Magnitude Distribution",
+        "year_selection": "Select Year:",
+        "xlabel_magnitude": "Magnitude",
+        "ylabel_count": "Count",
+        "title_trend": "Earthquake Trend by Year",
+        "yearly_count": "Number of Earthquakes Each Year",
+        "scatter_depth_magnitude": "Scatter Plot: Magnitude vs. Depth of Earthquakes",
+        "tsunami_relation": "Relationship Between Tsunami Occurrence, Depth, and Magnitude",
+        "continent_selection": "Select Continent:",
+        "year_all": "All Years",
+        "continent_all": "All Continents",
+        "map_title": "Interactive Earthquake Distribution Map",
+        "warning_no_data": "No data for the selected continent and year.",
+        "legend_title": "Legend:",
+        "legend_low": "Magnitude < 4.0",
+        "legend_moderate": "4.0 ≤ Magnitude < 5.0",
+        "legend_high": "5.0 ≤ Magnitude < 6.0",
+        "legend_very_high": "Magnitude ≥ 6.0",
+        "continent_year": "Continent: {0}, Year: {1}",
+        "comparison_title": "Comparison of Earthquake Counts by Country or Continent",
+        "group_by": "Group by:",
+        "country": "Country",
+        "continent": "Continent",
+        "top_countries": "Earthquake Counts by Country (Top 10)",
+        "by_continent": "Earthquake Counts by Continent",
+    },
+    "Українська": {
+        "title_histogram": "Гістограма розподілу магнітуд землетрусів",
+        "year_selection": "Оберіть рік:",
+        "xlabel_magnitude": "Магнітуда",
+        "ylabel_count": "Кількість",
+        "title_trend": "Тренд кількості землетрусів за роками",
+        "yearly_count": "Кількість землетрусів за кожен рік",
+        "scatter_depth_magnitude": "Розсіювання: Магнітуда проти глибини землетрусів",
+        "tsunami_relation": "Залежність виникнення цунамі від глибини та магнітуди",
+        "continent_selection": "Оберіть континент:",
+        "year_all": "Всі роки",
+        "continent_all": "Всі континенти",
+        "map_title": "Інтерактивна карта розподілу землетрусів",
+        "warning_no_data": "Немає даних для вибраного континенту та року.",
+        "legend_title": "Легенда:",
+        "legend_low": "Магнітуда < 4.0",
+        "legend_moderate": "4.0 ≤ Магнітуда < 5.0",
+        "legend_high": "5.0 ≤ Магнітуда < 6.0",
+        "legend_very_high": "Магнітуда ≥ 6.0",
+        "continent_year": "Континент: {0}, Рік: {1}",
+        "comparison_title": "Порівняння кількості землетрусів за країнами або континентами",
+        "group_by": "Групувати за:",
+        "country": "Країною",
+        "continent": "Континентом",
+        "top_countries": "Кількість землетрусів за країнами (Топ-10)",
+        "by_continent": "Кількість землетрусів за континентами",
+    }
+}
+
+# Використання тексту відповідно до вибору мови
+t = text[language]
+
+# Заголовок для гістограми
+st.title(t["title_histogram"])
+
+
 
 # Заголовок додатку
 st.title("Гістограма розподілу магнітуд землетрусів")
