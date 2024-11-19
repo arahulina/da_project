@@ -22,3 +22,25 @@ def check_data(data):
 st.title("Аналіз датасету про землетруси")
 data = load_data()
 check_data(data)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def exploratory_analysis(data):
+    if data is not None:
+        st.subheader("Базова статистика")
+        st.write(data.describe())
+
+        st.subheader("Візуалізація розподілу ключових змінних")
+        for column in data.select_dtypes(include=[np.number]).columns:
+            fig, ax = plt.subplots()
+            sns.histplot(data[column], kde=True, ax=ax)
+            st.pyplot(fig)
+
+        st.subheader("Кореляційна матриця")
+        corr = data.corr()
+        fig, ax = plt.subplots(figsize=(10, 8))
+        sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+        st.pyplot(fig)
+
+exploratory_analysis(data)
