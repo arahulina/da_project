@@ -3,6 +3,8 @@ import streamlit as st
 from io import StringIO
 import seaborn as sns
 import matplotlib.pyplot as plt
+import plotly.express as px
+
 
 
 # Завантаження даних
@@ -64,49 +66,71 @@ st.pyplot(fig)
 # Streamlit app continuation from previous code
 
 # 3. Geospatial Analysis
+# 3. Geospatial Analysis
 st.header("3. Геопросторовий аналіз")
 st.subheader("Візуалізація епіцентрів землетрусів на карті")
 
-# Карта епіцентрів землетрусів з позначенням магнітуди
-fig = px.scatter_mapbox(
-    data, lat="Latitude", lon="Longitude", hover_name="Location", 
-    color="Magnitude", size="Magnitude",
-    color_continuous_scale=px.colors.cyclical.IceFire, size_max=15, zoom=1
-)
-fig.update_layout(mapbox_style="carto-positron")
-fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-st.plotly_chart(fig)
+# Ініціалізація змінної geo_data як порожнього DataFrame для уникнення помилок
+geo_data = pd.DataFrame()
+
+# Перевірка на наявність стовпців Latitude і Longitude
+if 'Latitude' in data.columns and 'Longitude' in data.columns:
+    # Видалення рядків з порожніми значеннями Latitude або Longitude
+    geo_data = data.dropna(subset=['Latitude', 'Longitude'])
+
+    # Карта епіцентрів землетрусів з позначенням магнітуди
+    fig = px.scatter_mapbox(
+        geo_data, lat="Latitude", lon="Longitude", hover_name="Location", 
+        color="Magnitude", size="Magnitude",
+        color_continuous_scale=px.colors.cyclical.IceFire, size_max=15, zoom=1
+    )
+    fig.update_layout(mapbox_style="open-street-map")  # Використовуємо стиль, що не потребує API-ключа
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    st.plotly_chart(fig)
+else:
+    st.error("Стовпці Latitude та Longitude відсутні у даних.")
 
 # Аналіз кластерів землетрусів (використання DBSCAN для кластеризації)
 st.subheader("Аналіз кластерів землетрусів")
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
 
-# Підготовка даних для кластеризації
-coords = data[['Latitude', 'Longitude']].dropna()
-scaler = StandardScaler()
-coords_scaled = scaler.fit_transform(coords)
+# Перевірка наявності даних для кластеризації
+if not geo_data.empty:
+    from sklearn.cluster import DBSCAN
+    from sklearn.preprocessing import StandardScaler
 
-# DBSCAN для кластеризації з візуалізацією результатів
-db = DBSCAN(eps=0.5, min_samples=5).fit(coords_scaled)
-data['Cluster'] = db.labels_
+    # Підготовка даних для кластеризації
+    coords = geo_data[['Latitude', 'Longitude']]
+    scaler = StandardScaler()
+    coords_scaled = scaler.fit_transform(coords)
 
-# Візуалізація кластерів на карті
-fig = px.scatter_mapbox(
-    data, lat="Latitude", lon="Longitude", hover_name="Location", 
-    color="Cluster", size="Magnitude", zoom=1, size_max=10,
-    color_continuous_scale=px.colors.sequential.Viridis
-)
-fig.update_layout(mapbox_style="carto-positron")
-st.plotly_chart(fig)
+    # DBSCAN для кластеризації з візуалізацією результатів
+    db = DBSCAN(eps=0.5, min_samples=5).fit(coords_scaled)
+    geo_data['Cluster'] = db.labels_
+
+    # Візуалізація кластерів на карті
+    fig = px.scatter_mapbox(
+        geo_data, lat="Latitude", lon="Longitude", hover_name="Location", 
+        color="Cluster", size="Magnitude", zoom=1, size_max=10,
+        color_continuous_scale=px.colors.sequential.Viridis
+    )
+    fig.update_layout(mapbox_style="open-street-map")
+    st.plotly_chart(fig)
+else:
+    st.error("Недостатньо даних для кластеризації.")
 
 # Дослідження зв'язку між географічним положенням та силою землетрусів
 st.subheader("Зв'язок між географічним положенням та силою землетрусів")
-fig = px.scatter(
-    data, x="Longitude", y="Latitude", color="Magnitude",
-    color_continuous_scale=px.colors.cyclical.IceFire, title="Magnitude by Location"
-)
-st.plotly_chart(fig)
+
+# Перевірка, що стовпці Latitude, Longitude і Magnitude існують і містять дані
+if not geo_data.empty and 'Magnitude' in geo_data.columns:
+    fig = px.scatter(
+        geo_data, x="Longitude", y="Latitude", color="Magnitude",
+        color_continuous_scale=px.colors.cyclical.IceFire, title="Зв'язок між місцем і силою землетрусу"
+    )
+    st.plotly_chart(fig)
+else:
+    st.error("Стовпець Magnitude відсутній або має некоректні дані.")
+
 
 # 4. Time Series Analysis
 st.header("4. Часовий аналіз")
