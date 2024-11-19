@@ -8,17 +8,11 @@ import pandas as pd
 import numpy as np
 import os
 
+# Load and display data
+@st.cache
 def load_data():
-    file_path = os.path.join('data', 'earthquakes.csv')
-    try:
-        data = pd.read_csv(file_path)
-        st.write("Дані успішно завантажено!")
-        return data
-    except FileNotFoundError:
-        st.error("Файл не знайдено. Перевірте, чи файл 'earthquakes.csv' знаходиться в папці 'data'.")
-    except Exception as e:
-        st.error(f"Виникла помилка при завантаженні файлу: {e}")
-    return None
+    data = pd.read_csv('data/earthquake_1995-2023.csv')
+    return data
 
 def check_data(data):
     if data is not None:
