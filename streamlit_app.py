@@ -37,22 +37,7 @@ st.header("Basic Statistical Summary")
 st.write("### Numerical Columns Summary")
 st.dataframe(data.describe())
 
-# Унікальні значення в ключових стовпцях
-st.header("Unique Values in Key Columns")
-key_columns = ['year', 'latitude', 'longitude', 'depth', 'magnitude']  # Оновіть список за потреби
-selected_column = st.selectbox("Select a column to view unique values:", key_columns)
 
-if selected_column in data.columns:
-    unique_values = data[selected_column].dropna().unique()
-    st.write(f"### Unique Values in `{selected_column}` (first 10):")
-    st.write(unique_values[:10])  # Показуємо перші 10 значень
-else:
-    st.write("Selected column is not in the dataset.")
-
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import streamlit as st
 
 # Заголовок
 st.title("Earthquake Dataset Analysis: Exploratory Data Analysis (EDA)")
