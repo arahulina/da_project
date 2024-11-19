@@ -5,3 +5,6 @@ altair
 matplotlib
 folium
 streamlit_folium
+seaborn
+scikit-learn
+plotly
