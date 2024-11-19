@@ -1,45 +1,210 @@
+# Код для створення додатку Streamlit для аналізу землетрусів
+
+## 1. Підготовка даних
+
+
 import streamlit as st
 import pandas as pd
+import numpy as np
+import os
 
-# Заголовок додатку
-st.title("Аналіз даних землетрусів 1995-2023")
+def load_data():
+    file_path = os.path.join('data', 'earthquakes.csv')
+    try:
+        data = pd.read_csv(file_path)
+        st.write("Дані успішно завантажено!")
+        return data
+    except FileNotFoundError:
+        st.error("Файл не знайдено. Перевірте, чи файл 'earthquakes.csv' знаходиться в папці 'data'.")
+    except Exception as e:
+        st.error(f"Виникла помилка при завантаженні файлу: {e}")
+    return None
 
-# Завантаження файлу
-uploaded_file = "data/earthquake_1995-2023.csv"
+def check_data(data):
+    if data is not None:
+        st.write("Структура даних:")
+        st.write(data.info())
+        st.write("Пропущені значення:")
+        st.write(data.isnull().sum())
+        st.write("Типи даних:")
+        st.write(data.dtypes)
 
-# Перевірка, чи завантажений файл
-if uploaded_file is not None:
-    # Завантаження даних
-    df = pd.read_csv(uploaded_file)
+st.title("Аналіз датасету про землетруси")
+data = load_data()
+check_data(data)
 
-    # Відображення перших кількох рядків даних
-    st.subheader("Перегляд даних")
-    st.write(df.head())
 
-   # Перевірка пропущених значень
-    st.subheader("Перевірка пропущених значень")
-    missing_values = df.isnull().sum()
-    st.write(missing_values[missing_values > 0])
+## 2. Розвідувальний аналіз даних
 
-    # Вибір методу заповнення пропущених значень
-    st.subheader("Заповнення пропущених значень")
-    fill_method = st.selectbox("Оберіть метод заповнення", ["Не заповнювати", "Середнє значення", "Медіана", "Мода", "Інтерполяція"])
 
-    if fill_method == "Середнє значення":
-        df.fillna(df.mean(), inplace=True)
-        st.write("Пропущені значення заповнено середнім значенням.")
-    elif fill_method == "Медіана":
-        df.fillna(df.median(), inplace=True)
-        st.write("Пропущені значення заповнено медіаною.")
-    elif fill_method == "Мода":
-        for column in df.columns:
-            df[column].fillna(df[column].mode()[0], inplace=True)
-        st.write("Пропущені значення заповнено модою.")
-    elif fill_method == "Інтерполяція":
-        df.interpolate(method='linear', inplace=True)
-        st.write("Пропущені значення заповнено методом інтерполяції.")
-    
-    # Перевірка типів даних
-    st.subheader("Перевірка типів даних")
-    st.write(df.dtypes)
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+def exploratory_analysis(data):
+    if data is not None:
+        st.subheader("Базова статистика")
+        st.write(data.describe())
+
+        st.subheader("Візуалізація розподілу ключових змінних")
+        for column in data.select_dtypes(include=[np.number]).columns:
+            fig, ax = plt.subplots()
+            sns.histplot(data[column], kde=True, ax=ax)
+            st.pyplot(fig)
+
+        st.subheader("Кореляційна матриця")
+        corr = data.corr()
+        fig, ax = plt.subplots(figsize=(10, 8))
+        sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+        st.pyplot(fig)
+
+exploratory_analysis(data)
+
+
+## 3. Геопросторовий аналіз
+
+
+import folium
+from streamlit_folium import folium_static
+
+def geo_analysis(data):
+    if data is not None and 'latitude' in data.columns and 'longitude' in data.columns:
+        st.subheader("Карта епіцентрів землетрусів")
+        m = folium.Map(location=[data['latitude'].mean(), data['longitude'].mean()], zoom_start=2)
+        for idx, row in data.iterrows():
+            folium.CircleMarker([row['latitude'], row['longitude']], 
+                                radius=5, 
+                                popup=f"Magnitude: {row['magnitude']}",
+                                color="red", 
+                                fill=True).add_to(m)
+        folium_static(m)
+
+geo_analysis(data)
+
+
+## 4. Часовий аналіз
+
+
+def time_analysis(data):
+    if data is not None and 'date' in data.columns:
+        data['date'] = pd.to_datetime(data['date'])
+        data.set_index('date', inplace=True)
+
+        st.subheader("Частота землетрусів у часі")
+        fig, ax = plt.subplots()
+        data.resample('M').size().plot(ax=ax)
+        st.pyplot(fig)
+
+        st.subheader("Сезонний аналіз")
+        seasonal = data.groupby(data.index.month).size()
+        fig, ax = plt.subplots()
+        seasonal.plot(kind='bar', ax=ax)
+        st.pyplot(fig)
+
+time_analysis(data)
+
+
+## 5. Аналіз магнітуди та глибини
+
+
+def magnitude_depth_analysis(data):
+    if data is not None and 'magnitude' in data.columns and 'depth' in data.columns:
+        st.subheader("Розподіл землетрусів за магнітудою")
+        fig, ax = plt.subplots()
+        sns.histplot(data['magnitude'], kde=True, ax=ax)
+        st.pyplot(fig)
+
+        st.subheader("Зв'язок між глибиною та магнітудою")
+        fig, ax = plt.subplots()
+        sns.scatterplot(x='depth', y='magnitude', data=data, ax=ax)
+        st.pyplot(fig)
+
+        st.subheader("Аномальні значення")
+        Q1 = data['magnitude'].quantile(0.25)
+        Q3 = data['magnitude'].quantile(0.75)
+        IQR = Q3 - Q1
+        outliers = data[(data['magnitude'] < (Q1 - 1.5 * IQR)) | (data['magnitude'] > (Q3 + 1.5 * IQR))]
+        st.write(outliers)
+
+magnitude_depth_analysis(data)
+
+
+## 6. Аналіз впливу на населення
+
+
+def impact_analysis(data):
+    if data is not None and 'magnitude' in data.columns and 'casualties' in data.columns:
+        st.subheader("Зв'язок між силою землетрусу та кількістю постраждалих")
+        fig, ax = plt.subplots()
+        sns.scatterplot(x='magnitude', y='casualties', data=data, ax=ax)
+        st.pyplot(fig)
+
+        if 'economic_loss' in data.columns:
+            st.subheader("Аналіз економічних збитків")
+            fig, ax = plt.subplots()
+            sns.scatterplot(x='magnitude', y='economic_loss', data=data, ax=ax)
+            st.pyplot(fig)
+
+impact_analysis(data)
+
+
+## 7. Прогнозне моделювання
+
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+def predictive_modeling(data):
+    if data is not None and 'magnitude' in data.columns:
+        st.subheader("Прогнозне моделювання")
+        
+        features = ['depth', 'latitude', 'longitude']
+        X = data[features]
+        y = data['magnitude']
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+
+        y_pred = model.predict(X_test)
+
+        st.write("Середньоквадратична помилка:", mean_squared_error(y_test, y_pred))
+        st.write("R2 score:", r2_score(y_test, y_pred))
+
+        st.write("Коефіцієнти моделі:")
+        for feature, coef in zip(features, model.coef_):
+            st.write(f"{feature}: {coef}")
+
+predictive_modeling(data)
+
+
+## 8. Висновки та рекомендації
+
+
+def conclusions():
+    st.subheader("Висновки та рекомендації")
+    st.write("На основі проведеного аналізу можна зробити наступні висновки:")
+    conclusions = st.text_area("Введіть ваші висновки тут")
+    st.write("Рекомендації для зменшення ризиків:")
+    recommendations = st.text_area("Введіть ваші рекомендації тут")
+    st.write("Напрямки для подальших досліджень:")
+    future_research = st.text_area("Введіть напрямки для подальших досліджень тут")
+
+conclusions()
+
+if __name__ == "__main__":
+    st.sidebar.title("Навігація")
+    pages = {
+        "Підготовка даних": load_data,
+        "Розвідувальний аналіз": exploratory_analysis,
+        "Геопросторовий аналіз": geo_analysis,
+        "Часовий аналіз": time_analysis,
+        "Аналіз магнітуди та глибини": magnitude_depth_analysis,
+        "Аналіз впливу на населення": impact_analysis,
+        "Прогнозне моделювання": predictive_modeling,
+        "Висновки та рекомендації": conclusions
+    }
+    selection = st.sidebar.radio("Перейти до", list(pages.keys()))
+    page = pages[selection]
+    page()
