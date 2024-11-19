@@ -1,46 +1,48 @@
-import streamlit as st
 import pandas as pd
-import numpy as np
+import streamlit as st
+from io import StringIO
 
-def load_data():
-    uploaded_file = st.file_uploader("Завантажте CSV файл з даними про землетруси", type="csv")
-    if uploaded_file is not None:
-        data = pd.read_csv(uploaded_file)
-        st.write("Дані успішно завантажено!")
-        return data
-    return None
+# Завантаження даних
+file_path = 'data/earthquake_1995-2023.csv'
+data = pd.read_csv(file_path)
 
-def check_data(data):
-    if data is not None:
-        st.write("Структура даних:")
-        st.write(data.info())
-        st.write("Пропущені значення:")
-        st.write(data.isnull().sum())
-        st.write("Типи даних:")
-        st.write(data.dtypes)
+# Заголовок додатку
+st.title("Earthquake Dataset Analysis: Data Preparation")
 
-st.title("Аналіз датасету про землетруси")
-data = load_data()
-check_data(data)
+# Виведення загальної інформації про датасет
+st.header("Dataset Overview")
+st.write("### First 5 Rows of the Dataset")
+st.dataframe(data.head())
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+st.write("### Dataset Dimensions")
+st.write(f"Rows: {data.shape[0]}, Columns: {data.shape[1]}")
 
-def exploratory_analysis(data):
-    if data is not None:
-        st.subheader("Базова статистика")
-        st.write(data.describe())
+st.write("### Dataset Information")
+# Використання StringIO для виводу data.info()
+buffer = StringIO()
+data.info(buf=buffer)
+st.text(buffer.getvalue())  # Виводимо результат у Streamlit
 
-        st.subheader("Візуалізація розподілу ключових змінних")
-        for column in data.select_dtypes(include=[np.number]).columns:
-            fig, ax = plt.subplots()
-            sns.histplot(data[column], kde=True, ax=ax)
-            st.pyplot(fig)
+# Перевірка пропущених значень
+st.header("Missing Values")
+missing_values = data.isnull().sum()
+st.write("### Count of Missing Values in Each Column")
+st.dataframe(missing_values[missing_values > 0].rename("Missing Count"))
 
-        st.subheader("Кореляційна матриця")
-        corr = data.corr()
-        fig, ax = plt.subplots(figsize=(10, 8))
-        sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
-        st.pyplot(fig)
+# Основні статистичні показники
+st.header("Basic Statistical Summary")
+st.write("### Numerical Columns Summary")
+st.dataframe(data.describe())
 
-exploratory_analysis(data)
+# Унікальні значення в ключових стовпцях
+st.header("Unique Values in Key Columns")
+key_columns = ['year', 'latitude', 'longitude', 'depth', 'magnitude']  # Оновіть список за потреби
+selected_column = st.selectbox("Select a column to view unique values:", key_columns)
+
+if selected_column in data.columns:
+    unique_values = data[selected_column].dropna().unique()
+    st.write(f"### Unique Values in `{selected_column}` (first 10):")
+    st.write(unique_values[:10])  # Показуємо перші 10 значень
+else:
+    st.write("Selected column is not in the dataset.")
+
