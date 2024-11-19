@@ -57,25 +57,17 @@ import streamlit as st
 # Заголовок
 st.title("Earthquake Dataset Analysis: Exploratory Data Analysis (EDA)")
 
-# Розрахунок базової статистики
-st.header("Basic Statistics")
-st.write("### Summary for Numerical Columns")
-st.dataframe(data.describe())
+# Вибір числових колонок
+numeric_columns = data.select_dtypes(include=['float64', 'int64'])
 
-# Візуалізація розподілу ключових змінних
-st.header("Distribution of Key Variables")
-numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns
-selected_column = st.selectbox("Select a numeric column to visualize distribution:", numeric_columns)
-
-if selected_column:
-    fig, ax = plt.subplots(figsize=(8, 5))
-    sns.histplot(data[selected_column].dropna(), kde=True, ax=ax, bins=30)
-    ax.set_title(f"Distribution of {selected_column}")
-    st.pyplot(fig)
+# Заповнення пропущених значень
+# Заповнюємо середнім для кожної числової колонки
+numeric_columns = numeric_columns.fillna(numeric_columns.mean())
 
 # Кореляційний аналіз
 st.header("Correlation Analysis")
-correlation_matrix = data.corr()
+correlation_matrix = numeric_columns.corr()
+
 st.write("### Correlation Matrix")
 st.dataframe(correlation_matrix)
 
@@ -83,3 +75,4 @@ st.write("### Heatmap of Correlations")
 fig, ax = plt.subplots(figsize=(10, 8))
 sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
 st.pyplot(fig)
+
