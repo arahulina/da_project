@@ -47,7 +47,7 @@ numeric_columns = data.select_dtypes(include=['float64', 'int64'])
 
 # Заповнення пропущених значень
 # Заповнюємо середнім для кожної числової колонки
-numeric_columns = numeric_columns.fillna(numeric_columns.mean())
+numeric_columns = numeric_columns.fillna(numeric_columns.median())
 
 # Кореляційний аналіз
 st.header("Correlation Analysis")
@@ -61,3 +61,121 @@ fig, ax = plt.subplots(figsize=(10, 8))
 sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
 st.pyplot(fig)
 
+# Streamlit app continuation from previous code
+
+# 3. Geospatial Analysis
+st.header("3. Геопросторовий аналіз")
+st.subheader("Візуалізація епіцентрів землетрусів на карті")
+
+# Карта епіцентрів землетрусів з позначенням магнітуди
+fig = px.scatter_mapbox(
+    data, lat="Latitude", lon="Longitude", hover_name="Location", 
+    color="Magnitude", size="Magnitude",
+    color_continuous_scale=px.colors.cyclical.IceFire, size_max=15, zoom=1
+)
+fig.update_layout(mapbox_style="carto-positron")
+fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+st.plotly_chart(fig)
+
+# Аналіз кластерів землетрусів (використання DBSCAN для кластеризації)
+st.subheader("Аналіз кластерів землетрусів")
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+
+# Підготовка даних для кластеризації
+coords = data[['Latitude', 'Longitude']].dropna()
+scaler = StandardScaler()
+coords_scaled = scaler.fit_transform(coords)
+
+# DBSCAN для кластеризації з візуалізацією результатів
+db = DBSCAN(eps=0.5, min_samples=5).fit(coords_scaled)
+data['Cluster'] = db.labels_
+
+# Візуалізація кластерів на карті
+fig = px.scatter_mapbox(
+    data, lat="Latitude", lon="Longitude", hover_name="Location", 
+    color="Cluster", size="Magnitude", zoom=1, size_max=10,
+    color_continuous_scale=px.colors.sequential.Viridis
+)
+fig.update_layout(mapbox_style="carto-positron")
+st.plotly_chart(fig)
+
+# Дослідження зв'язку між географічним положенням та силою землетрусів
+st.subheader("Зв'язок між географічним положенням та силою землетрусів")
+fig = px.scatter(
+    data, x="Longitude", y="Latitude", color="Magnitude",
+    color_continuous_scale=px.colors.cyclical.IceFire, title="Magnitude by Location"
+)
+st.plotly_chart(fig)
+
+# 4. Time Series Analysis
+st.header("4. Часовий аналіз")
+st.subheader("Аналіз частоти землетрусів у часі")
+
+# Перевірка та конвертація дати
+data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
+data = data.dropna(subset=['Date'])  # Видалення некоректних дат
+
+# Групування за датою для аналізу частоти
+data['Year'] = data['Date'].dt.year
+yearly_counts = data.groupby('Year').size()
+
+# Графік частоти землетрусів по роках
+fig, ax = plt.subplots()
+yearly_counts.plot(kind='bar', ax=ax, color='skyblue')
+ax.set_title("Кількість землетрусів по роках")
+ax.set_xlabel("Рік")
+ax.set_ylabel("Кількість землетрусів")
+st.pyplot(fig)
+
+# Виявлення сезонних паттернів
+st.subheader("Сезонні паттерни землетрусів")
+data['Month'] = data['Date'].dt.month
+monthly_counts = data.groupby('Month').size()
+
+# Графік частоти землетрусів по місяцях
+fig, ax = plt.subplots()
+monthly_counts.plot(kind='bar', ax=ax, color='coral')
+ax.set_title("Кількість землетрусів по місяцях")
+ax.set_xlabel("Місяць")
+ax.set_ylabel("Кількість землетрусів")
+st.pyplot(fig)
+
+# Довгострокові тренди
+st.subheader("Довгострокові тренди землетрусів")
+fig, ax = plt.subplots()
+yearly_counts.rolling(window=5).mean().plot(ax=ax, color='purple')
+ax.set_title("5-річне ковзне середнє частоти землетрусів")
+ax.set_xlabel("Рік")
+ax.set_ylabel("Середнє значення частоти")
+st.pyplot(fig)
+
+# 5. Analysis of Magnitude and Depth
+st.header("5. Аналіз магнітуди та глибини")
+st.subheader("Розподіл землетрусів за магнітудою")
+
+# Розподіл магнітуди
+fig, ax = plt.subplots()
+sns.histplot(data['Magnitude'], kde=True, ax=ax, color="blue")
+ax.set_title("Розподіл магнітуди землетрусів")
+ax.set_xlabel("Магнітуда")
+ax.set_ylabel("Частота")
+st.pyplot(fig)
+
+# Зв'язок між глибиною та магнітудою
+st.subheader("Зв'язок між глибиною та магнітудою")
+fig, ax = plt.subplots()
+sns.scatterplot(x=data['Depth'], y=data['Magnitude'], ax=ax, color="green")
+ax.set_title("Глибина vs Магнітуда")
+ax.set_xlabel("Глибина (км)")
+ax.set_ylabel("Магнітуда")
+st.pyplot(fig)
+
+# Виявлення аномальних значень
+st.subheader("Виявлення аномальних значень у магнітуді та глибині")
+threshold = st.slider("Значення для виявлення аномальних значень", min_value=6.0, max_value=10.0, value=7.0)
+outliers = data[data['Magnitude'] > threshold]
+st.write("Землетруси з магнітудою більше", threshold)
+st.write(outliers[['Date', 'Location', 'Magnitude', 'Depth']])
+
+# Наступні розділи (Аналіз впливу на населення та Прогнозне моделювання) будуть додані нижче
