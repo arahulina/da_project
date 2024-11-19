@@ -40,18 +40,17 @@ def exploratory_analysis(data):
         st.write(data.describe())
 
         st.subheader("Візуалізація розподілу ключових змінних")
-        for column in data.select_dtypes(include=[np.number]).columns:
+        numeric_columns = data.select_dtypes(include=[np.number]).columns
+        for column in numeric_columns:
             fig, ax = plt.subplots()
             sns.histplot(data[column], kde=True, ax=ax)
             st.pyplot(fig)
 
         st.subheader("Кореляційна матриця")
-        corr = data.corr()
+        corr = data[numeric_columns].corr()
         fig, ax = plt.subplots(figsize=(10, 8))
         sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
         st.pyplot(fig)
-
-exploratory_analysis(data)
 
 
 ## 3. Геопросторовий аналіз
